@@ -1,0 +1,94 @@
+<!-- 🔒 login.html - صفحة دخول الأدمن -->
+<!-- ... (محتوى login.html كما هو) ... -->
+
+<!-- 🛠️ admin.html - لوحة تحكم الأدمن -->
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>لوحة تحكم الأدمن - WIBE</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { background: linear-gradient(to right, #fff3e0, #ffe0b2); font-family: 'Segoe UI', sans-serif; padding: 40px; margin: 0; display: flex; justify-content: center; }
+    .container { max-width: 700px; background: #fff; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; }
+    h1 { text-align: center; color: #e65100; }
+    .idea { background: #fffde7; padding: 15px; border-radius: 12px; margin-top: 10px; position: relative; border: 2px solid #ffe082; }
+    .idea-author { font-size: 12px; color: #888; margin-top: 6px; }
+    .delete-btn { position: absolute; top: 10px; left: 10px; background: #d32f2f; color: white; border: none; padding: 6px 10px; border-radius: 8px; cursor: pointer; font-size: 12px; }
+    .edit-input { width: 100%; padding: 10px; margin-top: 10px; font-size: 1rem; border: 1px solid #ccc; border-radius: 8px; }
+    .save-btn { margin-top: 8px; padding: 6px 10px; background: #388e3c; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; }
+  </style>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, collection, doc, updateDoc, deleteDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCfg3MbltufLA2-LwSO3cp8aKnjMOnqvnU",
+      authDomain: "wibe-8f1c4.firebaseapp.com",
+      projectId: "wibe-8f1c4",
+      storageBucket: "wibe-8f1c4.firebasestorage.app",
+      messagingSenderId: "64808305391",
+      appId: "1:64808305391:web:c8e6ba4d8236381b58511a"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const ideaList = document.getElementById("ideaList");
+    const q = query(collection(db, "ideas"), orderBy("timestamp", "desc"));
+    onSnapshot(q, snapshot => {
+      ideaList.innerHTML = "";
+      snapshot.forEach(docSnap => {
+        const data = docSnap.data();
+        const id = docSnap.id;
+
+        const div = document.createElement("div");
+        div.className = "idea";
+
+        const ideaText = document.createElement("div");
+        ideaText.textContent = data.text;
+
+        const author = document.createElement("div");
+        author.className = "idea-author";
+        author.textContent = `👤 ${data.author}`;
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.className = "delete-btn";
+        deleteBtn.textContent = "🗑 حذف";
+        deleteBtn.onclick = async () => {
+          if (confirm("هل أنت متأكد من الحذف؟")) {
+            await deleteDoc(doc(db, "ideas", id));
+          }
+        };
+
+        const editInput = document.createElement("textarea");
+        editInput.className = "edit-input";
+        editInput.value = data.text;
+
+        const saveBtn = document.createElement("button");
+        saveBtn.className = "save-btn";
+        saveBtn.textContent = "💾 حفظ التعديل";
+        saveBtn.onclick = async () => {
+          await updateDoc(doc(db, "ideas", id), {
+            text: editInput.value
+          });
+          alert("تم التعديل");
+        };
+
+        div.appendChild(deleteBtn);
+        div.appendChild(ideaText);
+        div.appendChild(author);
+        div.appendChild(editInput);
+        div.appendChild(saveBtn);
+        ideaList.appendChild(div);
+      });
+    });
+  </script>
+</head>
+<body>
+  <div class="container">
+    <h1>لوحة التحكم - حذف وتعديل الأفكار</h1>
+    <div id="ideaList"></div>
+  </div>
+</body>
+</html>

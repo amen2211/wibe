@@ -1,0 +1,140 @@
+<!-- 🔥 index.html - صفحة أفكار بسيطة مع قراءة وكتابة -->
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>شارك فكرتك - WIBE</title>
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: linear-gradient(to right, #e3f2fd, #f1f8e9);
+      margin: 0;
+      padding: 0;
+      direction: rtl;
+      text-align: center;
+    }
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      background: white;
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+    .header button {
+      margin: 0 5px;
+      padding: 10px 15px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      background-color: #00695c;
+      color: white;
+      cursor: pointer;
+    }
+    h1 {
+      color: #004d40;
+    }
+    input, textarea {
+      width: 90%;
+      padding: 10px;
+      margin: 10px 0;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    button {
+      background: #00695c;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .idea {
+      background-color: #f0f0f0;
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 10px;
+      text-align: right;
+    }
+    .idea .author {
+      font-weight: bold;
+      color: #00796b;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <button onclick="window.location.href='about.html'">عن الموقع</button>
+      <button onclick="window.location.href='login.html'">دخول الأدمن</button>
+    </div>
+    <h1>شارك فكرتك 💡</h1>
+    <div class="admin-message" style="background:#fff3cd; border:1px solid #ffeeba; padding:15px; border-radius:10px; margin:20px 0; color:#856404;">
+  <h3>📢 تنويه من إدارة WIBE</h3>
+  <p>مرحبًا بك في منصة WIBE 👋</p>
+  <p>نحن نرحب بجميع الأفكار والمقترحات البنّاءة، ولكن نرجو منك الالتزام بما يلي:</p>
+  <ul style="text-align:right; padding-right:20px;">
+    <li>❌ يمنع نشر محتوى مسيء أو مخالف للأخلاق العامة.</li>
+    <li>✅ يجب أن تكون الفكرة واضحة ومكتوبة بلغة محترمة.</li>
+    <li>🛠 جميع المشاركات تُراجع قبل اعتمادها من طرف الإدارة.</li>
+  </ul>
+  <p>شكراً لتفهمك 🙏</p>
+</div>
+
+    
+    <input id="author" type="text" placeholder="اسمك">
+    <textarea id="content" placeholder="اكتب فكرتك هنا..."></textarea>
+    <button onclick="sendIdea()">📤 نشر</button>
+    <div id="ideas"></div>
+  </div>
+  <footer style="margin-top: 50px; padding: 20px; background: #e0f2f1; color: #004d40; font-size: 14px; border-top: 1px solid #ccc;">
+  &copy; 2025 WIBE. جميع الحقوق محفوظة.
+</footer>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCfg3MbltufLA2-LwSO3cp8aKnjMOnqvnU",
+    authDomain: "wibe-8f1c4.firebaseapp.com",
+    projectId: "wibe-8f1c4",
+    storageBucket: "wibe-8f1c4.firebasestorage.app",
+    messagingSenderId: "64808305391",
+    appId: "1:64808305391:web:c8e6ba4d8236381b58511a"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  window.sendIdea = async function () {
+    const author = document.getElementById("author").value;
+    const content = document.getElementById("content").value;
+    if (!author || !content) return alert("يرجى ملء جميع الحقول");
+    await addDoc(collection(db, "ideas"), {
+      author,
+      content,
+      timestamp: serverTimestamp()
+    });
+    document.getElementById("content").value = "";
+  };
+
+  const ideasDiv = document.getElementById("ideas");
+  const q = query(collection(db, "ideas"), orderBy("timestamp", "desc"));
+  onSnapshot(q, snapshot => {
+    ideasDiv.innerHTML = "";
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const box = document.createElement("div");
+      box.className = "idea";
+      box.innerHTML = `<div class="author">👤 ${data.author}</div><div>${data.content}</div>`;
+      ideasDiv.appendChild(box);
+    });
+  });
+</script>
+
+</body>
+</html>
